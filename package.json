@@ -4,13 +4,16 @@
   "description": "Paquete que lee y evalua expresiones logicas",
   "main": "./lib/index.js",
   "scripts": {
-    "test": ""
+    "build": "tsc -p ./tsconfig.json",
+    "test": "npm run build && mocha ./lib/test"
   },
   "author": "Rodrigo Maximiliano Bellusci",
   "license": "MIT",
   "devDependencies": {
+    "@types/immutable": "^3.8.7",
     "@types/mocha": "^2.2.39",
     "@types/should": "^8.1.30",
+    "immutable": "^3.8.1",
     "mocha": "^3.2.0",
     "should": "^11.2.0",
     "typescript": "^2.1.5"

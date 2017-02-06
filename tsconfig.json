@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "outDir": "./lib"
+    },
+    "include": [
+        "index.ts",
+        "test/*.ts"
+    ]
+}
