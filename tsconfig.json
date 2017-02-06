@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "outDir": "./lib"
+        "outDir": "./lib",
+        "target": "es5"
     },
     "include": [
         "index.ts",
