@@ -5,6 +5,7 @@
     },
     "include": [
         "index.ts",
-        "test/*.ts"
+        "test/*.ts",
+        "test.ts"
     ]
 }

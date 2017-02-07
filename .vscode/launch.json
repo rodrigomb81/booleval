@@ -7,27 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests",
-            "cwd": "${workspaceRoot}",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha.cmd"
-            },
-            "runtimeArgs": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999",
-                "--colors",
-                "${workspaceRoot}/lib/test"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "Iniciar programa",
-            "program": "${workspaceRoot}\\lib\\index.js",
+            "program": "${workspaceRoot}\\lib\\test.js",
             "cwd": "${workspaceRoot}",
             "outFiles": []
         },

@@ -17,16 +17,29 @@ export interface Token {
     pos: number
 }
 
+export interface Variables {
+    [nombre: string]: boolean
+}
+
+export interface EstadoEvaluacion {
+    expresion: List<Token>
+    pila: List<boolean>
+}
+
 export interface ErrorMultiple {
     nombre: 'ErrorMultiple'
     errores: (CaracterInesperado | ParentesisAbierto)[]
 }
 
-export type ErrorPosible = ParentesisAbierto | ParentesisExtraviado | CaracterInesperado
+export type ErrorPosible = ParentesisAbierto | ParentesisExtraviado | CaracterInesperado | OperandoFaltante
 
 export interface ErrorBase {
     nombre: string
     pos: number
+}
+
+export interface OperandoFaltante extends ErrorBase {
+    nombre: 'OperandoFaltante'
 }
 
 export interface ParentesisExtraviado extends ErrorBase {
@@ -46,7 +59,7 @@ export interface ParentesisAbierto extends ErrorBase {
 export interface ExpresionLeida {
     pos: number
     tokens: List<Token>
-    vars: List<String>
+    vars: List<string>
 }
 
 export class Nodo<A> {
@@ -97,35 +110,133 @@ export class Nodo<A> {
 }
 
 /**
- * evaluar$: es simplemente una envoltura para evaluar, que es la funcion que realmente calcula el resultado
+ * evaluar: es simplemente una envoltura para evaluar$, que es la funcion que realmente calcula el resultado
  */
-function evaluar$(expresion: string): boolean[] {
-    return [true]
+export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<boolean[]> {
+    if (!exp_maybe.error) {
+        const {tokens, vars} = exp_maybe.resultado as ExpresionLeida
+        /**
+         * tabla de valores para las variables
+         */
+        const tabla = generar_tabla(vars.size)
+
+        const variables_cargadas = tabla.map((valores, indice) => zipToObj(vars.toArray(), valores))
+
+        const resultados: boolean[] = []
+        for (let i = 0; i < variables_cargadas.length; i++) {
+            const r = evaluar$(variables_cargadas[i], {error: false, resultado: {expresion: tokens, pila: List([])}})
+            if (r.error) {
+                return r
+            }
+            else {
+                resultados.push((r.resultado as EstadoEvaluacion).pila.last())
+            }
+        }
+
+        return {error: false, resultado: resultados}
+    }
+    else {
+        return exp_maybe
+    }
+}
+
+function zipToObj<A>(keys: string[], values: A[]): {[k: string]: A} {
+    const obj: {[k: string]: A} = {}
+    keys.forEach((key, index) => {
+        obj[key] = values[index]
+    })
+    return obj
 }
 
 /**
  * evaluar: reduce una expresion en rpn a una pila de valores booleanos
  */
-function evaluar(expresion: List<Token>, stack: List<boolean>): List<boolean> {
-    return List([true])
+export function evaluar$(variables: Variables, estado_maybe: Fallo<OperandoFaltante> | Exito<EstadoEvaluacion>): Fallo<OperandoFaltante> | Exito<EstadoEvaluacion> {
+    if (!estado_maybe.error) {
+        const {expresion, pila} = estado_maybe.resultado as EstadoEvaluacion
+        if (expresion.size > 0) {
+            const elemento = expresion.get(0)
+            let proximo_estado: EstadoEvaluacion;
+
+            switch (elemento.tipo) {
+                case 'var':
+                proximo_estado = { pila: pila.push(variables[elemento.nombre]), expresion: expresion.shift() }
+                break
+                case 'conectivo':
+                {
+                    if (elemento.nombre == 'complemento') {
+                        proximo_estado = { pila: pila.pop().push(!pila.last()), expresion: expresion.shift() }
+                    }
+                    else if (pila.size >= 2) {
+                        const operando_b = pila.last()
+                        const operando_a = pila.pop().last()
+
+                        const operador = conectivos_operadores[elemento.texto]
+
+                        proximo_estado = { pila: pila.pop().pop().push(operador(operando_a, operando_b)), expresion: expresion.shift() }
+                    }
+                    else {
+                        return {error: true, resultado: {nombre: 'OperandoFaltante', pos: elemento.pos}}
+                    }
+                }
+                break
+                case 'valor':
+                proximo_estado = { pila: pila.push(elemento.nombre == 'tautologia'), expresion: expresion.shift()}
+                break
+            }
+
+            return evaluar$(variables, {error: false, resultado: proximo_estado})
+        }
+        else {
+            // se llegó al final de la evaluación
+            return estado_maybe
+        }
+    }
+    else {
+        return estado_maybe
+    }
+}
+
+export function generar_tabla(variables: number): boolean[][] {
+    const total = Math.pow(2, variables)
+    const filas: boolean[][] = rango(total).map(i => i.toString(2)).map(i => left_pad('0', variables, i)).map(i => i.split('').map(i => i == '1')).reverse()
+    return filas
+}
+
+function left_pad(padder: string, longitud: number, cadena_original: string): string {
+    let nueva_cadena = cadena_original
+    for (let i = cadena_original.length; i < longitud; i++) {
+        nueva_cadena = padder +  nueva_cadena
+    }
+    return nueva_cadena
+}
+/**
+ * rango: devuelve un arreglo de valores de 0 a longitud - 1
+ */
+function rango(longitud: number): number[] {
+    const a: number[] = []
+    for (let i = 0; i < longitud; i++) {
+        a.push(i)
+    }
+    return a
 }
 
 /**
  * rpn: envoltura para `aplastar`, devuelve el error encontrado o una lista de tokens que se puede evaluar facilmente
  */
 
-export function rpn(expresion_maybe: Fallo<CaracterInesperado> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<List<Token>> {
+export function rpn(expresion_maybe: Fallo<CaracterInesperado> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<ExpresionLeida> {
     if (expresion_maybe.error) {
         return expresion_maybe
     }
     else {
-        const tokens = (expresion_maybe.resultado as ExpresionLeida).tokens
+        const {tokens, vars, pos} = (expresion_maybe.resultado as ExpresionLeida)
         const arbol_maybe = arbol(tokens, {error: false, resultado: new Nodo<Token>()})
         if (arbol_maybe.error) {
             return arbol_maybe
         }
         else {
-            return {error: false, resultado: List(aplastar(arbol_maybe.resultado as Nodo<Token>))}
+            return {error: false, resultado: {tokens: List(aplastar(arbol_maybe.resultado as Nodo<Token>)), vars, pos}}
         }
     }
 }
@@ -253,7 +364,7 @@ export function arbol(expresion: List<Token>, raiz_maybe: Fallo<ErrorPosible> | 
             }
         }
         else {
-            return null
+            return {error: false, resultado: null}
         }
     }
     else {
@@ -399,6 +510,13 @@ export function leer$(expresion: string, exp_maybe: Fallo<CaracterInesperado> | 
     else {
         return exp_maybe
     }
+}
+
+const conectivos_operadores: {[nombre: string]: (a: boolean, b: boolean) => boolean} = {
+    '&': (a, b) => a && b,
+    '|': (a, b) => a || b,
+    '>': (a, b) => !a || b,
+    '=': (a, b) => a == b
 }
 
 const conectivos_nombres: {[nombre: string]: string} = {

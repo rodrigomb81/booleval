@@ -2,10 +2,32 @@ import 'mocha'
 import 'should'
 
 import {leer, Token, CaracterInesperado, ExpresionLeida, buscarPareja, buscarConectivo} from '../index'
-import {Nodo, arbol, arbol_optimista, rpn} from '../index'
+import {Nodo, arbol, arbol_optimista, rpn, evaluar$, generar_tabla, evaluar} from '../index'
 import {List} from 'immutable'
 
 describe('Toda clase de pruebas:', () => {
+    describe('generar_tabla', () => {
+        it('funciona con 1 variable', () => {
+            const tabla = generar_tabla(1)
+            tabla.length.should.equal(2)
+            tabla[0][0].should.equal(true)
+            tabla[1][0].should.equal(false)
+        })
+
+        it('funciona con 2 variables', () => {
+            const tabla = generar_tabla(2)
+            tabla.length.should.equal(4)
+            tabla[0][0].should.equal(true)
+            tabla[0][1].should.equal(true)
+            tabla[1][0].should.equal(true)
+            tabla[1][1].should.equal(false)
+            tabla[2][0].should.equal(false)
+            tabla[2][1].should.equal(true)
+            tabla[3][0].should.equal(false)
+            tabla[3][1].should.equal(false)
+        })
+    })
+
     describe('leer:', () => {
         it('todos los simbolos', () => {
             const e = '!>=|&vTC()' 
@@ -119,7 +141,7 @@ describe('Toda clase de pruebas:', () => {
           should.assert(arbol.derecha.derecha == null, 'La rama derecha no es null')
       })
 
-      it('V2', () => {
+      it('arbol que soporta errores', () => {
           const tokens = (leer('(a&b)').resultado as ExpresionLeida).tokens
           const arbol_maybe = arbol(tokens, {error: false, resultado: new Nodo<Token>()})
 
@@ -163,11 +185,11 @@ describe('Toda clase de pruebas:', () => {
 
           exp_maybe.error.should.equal(false)
 
-          const exp = exp_maybe.resultado as List<Token>
+          const {tokens} = exp_maybe.resultado as ExpresionLeida
 
-          exp.get(0).should.deepEqual({nombre: 'a', texto: 'a', tipo: 'var', pos: 1})
-          exp.get(0).should.deepEqual({nombre: 'b', texto: 'b', tipo: 'var', pos: 3})
-          exp.get(0).should.deepEqual({nombre: 'conjuncion', texto: '&', tipo: 'conectivo', pos: 2})
+          tokens.get(0).should.deepEqual({nombre: 'a', texto: 'a', tipo: 'var', pos: 1})
+          tokens.get(1).should.deepEqual({nombre: 'b', texto: 'b', tipo: 'var', pos: 3})
+          tokens.get(2).should.deepEqual({nombre: 'conjuncion', texto: '&', tipo: 'conectivo', pos: 2})
       })
 
       it('devuelve el error encontrado', () => {
@@ -175,6 +197,71 @@ describe('Toda clase de pruebas:', () => {
 
           exp_maybe.error.should.equal(true)
           exp_maybe.resultado.should.deepEqual({nombre: 'ParentesisAbierto', pos: 0})
+      })
+  })
+
+  describe('evaluar$', () => {
+      it('calcula el resultado correcto', () => {
+        const resultado_maybe = evaluar(rpn(leer('a')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado[0].should.equal(true)
+        resultado[1].should.equal(false)
+      })
+
+      it('calcula el resultado de una conjuncion', () => {
+        const resultado_maybe = evaluar(rpn(leer('a & b')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado[0].should.equal(true)
+        resultado[1].should.equal(false)
+        resultado[2].should.equal(false)
+        resultado[3].should.equal(false)
+      })
+
+      it('calcula el resultado de una disyuncion', () => {
+        const resultado_maybe = evaluar(rpn(leer('a | b')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado[0].should.equal(true)
+        resultado[1].should.equal(true)
+        resultado[2].should.equal(true)
+        resultado[3].should.equal(false)
+      })
+
+      it('calcula el resultado de una implicacion', () => {
+        const resultado_maybe = evaluar(rpn(leer('a > b')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado[0].should.equal(true)
+        resultado[1].should.equal(false)
+        resultado[2].should.equal(true)
+        resultado[3].should.equal(true)
+      })
+
+      it('calcula el resultado de una equivalencia', () => {
+        const resultado_maybe = evaluar(rpn(leer('a = b')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado[0].should.equal(true)
+        resultado[1].should.equal(false)
+        resultado[2].should.equal(false)
+        resultado[3].should.equal(true)
       })
   })
 })
