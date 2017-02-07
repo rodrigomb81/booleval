@@ -1,8 +1,8 @@
 import 'mocha'
 import 'should'
 
-import {leer, Token, CaracterInesperado, ExpresionLeida, buscarPareja, buscarConectivo} from '../index'
-import {Nodo, arbol, arbol_optimista, rpn, evaluar$, generar_tabla, evaluar} from '../index'
+import {Nodo, Token, CaracterInesperado, ExpresionLeida} from '../interfaces'
+import {leer, buscarPareja, buscarConectivo, arbol, arbol_optimista, rpn, generar_tabla, evaluar} from '../lib'
 import {List} from 'immutable'
 
 describe('Toda clase de pruebas:', () => {

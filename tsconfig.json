@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
         "outDir": "./lib",
-        "target": "es5"
+        "target": "es5",
+        "declaration": true
     },
     "include": [
-        "index.ts",
-        "test/*.ts",
-        "test.ts"
+        "./*.ts",
+        "test/*.ts"
     ]
 }
