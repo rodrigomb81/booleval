@@ -1,6 +1,6 @@
 {
   "name": "ts-tablas",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Evaluador de expresiones logicas",
   "main": "./lib/index.js",
   "types": "./lib/index.dt.ts",
