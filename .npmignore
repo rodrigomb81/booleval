@@ -1,0 +1,10 @@
+node_modules/
+test/
+.gitignore
+.npmignore
+definitions.d.ts
+index.ts
+interfaces.ts
+lib.ts
+tsconfig.json
+.vscode/

@@ -1,13 +1,19 @@
 {
-  "name": "ts-tablas",
+  "name": "booleval",
   "version": "1.0.0",
-  "description": "Evaluador de expresiones logicas",
+  "description": "Logical expression evaluator",
   "main": "./lib/index.js",
   "types": "./lib/index.dt.ts",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && cp ./definitions.d.ts ./lib/index.d.ts",
     "test": "npm run build && mocha ./lib/test"
   },
+  "keywords": [
+    "evaluator",
+    "interpreter",
+    "parser",
+    "logic"
+  ],
   "author": "Rodrigo Maximiliano Bellusci",
   "license": "MIT",
   "devDependencies": {
