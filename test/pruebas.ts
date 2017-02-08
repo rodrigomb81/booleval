@@ -206,7 +206,7 @@ describe('Toda clase de pruebas:', () => {
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado[0].should.equal(true)
         resultado[1].should.equal(false)
@@ -217,7 +217,7 @@ describe('Toda clase de pruebas:', () => {
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado[0].should.equal(true)
         resultado[1].should.equal(false)
@@ -230,7 +230,7 @@ describe('Toda clase de pruebas:', () => {
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado[0].should.equal(true)
         resultado[1].should.equal(true)
@@ -243,7 +243,7 @@ describe('Toda clase de pruebas:', () => {
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado[0].should.equal(true)
         resultado[1].should.equal(false)
@@ -256,7 +256,7 @@ describe('Toda clase de pruebas:', () => {
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado[0].should.equal(true)
         resultado[1].should.equal(false)
@@ -266,15 +266,22 @@ describe('Toda clase de pruebas:', () => {
 
       it('devuelve [] al recibir una expresion nula', () => {
         const resultado_maybe = evaluar(rpn(leer('')))
-        const a = leer('')
-        const b = rpn(a)
-        const c = evaluar(b)
 
         resultado_maybe.error.should.equal(false)
 
-        const resultado = resultado_maybe.resultado as boolean[]
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
 
         resultado.should.deepEqual([])
+      })
+
+      it('el resultado tiene la cantidad adecuada de entradas', () => {
+        const resultado_maybe = evaluar(rpn(leer('a & b | b')))
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = (resultado_maybe.resultado as {vars: boolean[][], exp: boolean[]}).exp
+
+        resultado.length.should.equal(4)
       })
   })
 })

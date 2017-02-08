@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "description": "Logical expression evaluator",
   "main": "./lib/index.js",
-  "types": "./lib/index.dt.ts",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && cp ./definitions.d.ts ./lib/index.d.ts",
     "test": "npm run build && mocha ./lib/test"

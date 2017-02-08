@@ -27,7 +27,7 @@ const conectivos_precedencia: {[nombre: string]: number} = {
 /**
  * evaluar: es simplemente una envoltura para evaluar$, que es la funcion que realmente calcula el resultado
  */
-export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<boolean[]> {
+export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<{vars: boolean[][], exp: boolean[]}> {
     if (!exp_maybe.error) {
         const {tokens, vars} = exp_maybe.resultado as ExpresionLeida
         if (tokens.size > 0) {
@@ -49,10 +49,10 @@ export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>):
                 }
             }
 
-            return {error: false, resultado: resultados}   
+            return {error: false, resultado: {vars: tabla, exp: resultados}}
         }
         else {
-            return {error: false, resultado: []}
+            return {error: false, resultado: {vars: [], exp: []}}
         }
     }
     else {
@@ -164,7 +164,8 @@ export function leer$(expresion: string, exp_maybe: Fallo<CaracterInesperado> | 
             const texto = expresion.match(palabra)[0]
             const token: Token = {nombre: texto, texto, tipo: 'var', pos: exp.pos}
             const pos = exp.pos + texto.length
-            return leer$(expresion.substr(texto.length), {error: false, resultado: {pos, tokens: exp.tokens.push(token), vars: exp.vars.push(texto)}})
+            const vars = exp.vars.indexOf(texto) >= 0 ? exp.vars:exp.vars.push(texto) // agregar una variable solo si aun no esta en la lista
+            return leer$(expresion.substr(texto.length), {error: false, resultado: {pos, tokens: exp.tokens.push(token), vars}})
         }
         else if (conectivo.test(expresion)) {
             // extraer el conectivo
