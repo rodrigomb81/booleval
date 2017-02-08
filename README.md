@@ -1,6 +1,8 @@
 # booleval
 
-Logic expression evaluator.
+Logical expression evaluator.
+
+**Note: for now, the supported operators are `>`, `&`, `|`, `=`, and `!`.**
 
 
 This packages takes an string like `a & b` and calculates its truth table. It can handle expressions that contain errors such as 
