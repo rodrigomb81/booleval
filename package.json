@@ -9,7 +9,8 @@
     "pretest": "npm run build",
     "test": "mocha ./lib/test",
     "prepublish": "npm test",
-    "postpublish": "rm -rf ./lib"
+    "postpublish": "rm -rf ./lib",
+    "postversion": "npm publish"
   },
   "keywords": [
     "evaluator",
