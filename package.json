@@ -6,7 +6,9 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && cp ./definitions.d.ts ./lib/index.d.ts",
-    "test": "npm run build && mocha ./lib/test"
+    "test": "npm run build && mocha ./lib/test",
+    "prepublish": "npm test && npm run build",
+    "postpublish": "rm -rf ./lib"
   },
   "keywords": [
     "evaluator",
