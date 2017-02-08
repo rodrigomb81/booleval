@@ -1,6 +1,6 @@
 {
   "name": "booleval",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Logical expression evaluator",
   "main": "./lib/index.js",
   "types": "./lib/index.dt.ts",
