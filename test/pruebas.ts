@@ -263,5 +263,18 @@ describe('Toda clase de pruebas:', () => {
         resultado[2].should.equal(false)
         resultado[3].should.equal(true)
       })
+
+      it('devuelve [] al recibir una expresion nula', () => {
+        const resultado_maybe = evaluar(rpn(leer('')))
+        const a = leer('')
+        const b = rpn(a)
+        const c = evaluar(b)
+
+        resultado_maybe.error.should.equal(false)
+
+        const resultado = resultado_maybe.resultado as boolean[]
+
+        resultado.should.deepEqual([])
+      })
   })
 })

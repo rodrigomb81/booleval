@@ -30,25 +30,30 @@ const conectivos_precedencia: {[nombre: string]: number} = {
 export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<boolean[]> {
     if (!exp_maybe.error) {
         const {tokens, vars} = exp_maybe.resultado as ExpresionLeida
-        /**
-         * tabla de valores para las variables
-         */
-        const tabla = generar_tabla(vars.size)
+        if (tokens.size > 0) {
+            /**
+             * tabla de valores para las variables
+             */
+            const tabla = generar_tabla(vars.size)
 
-        const variables_cargadas = tabla.map((valores, indice) => zipToObj(vars.toArray(), valores))
+            const variables_cargadas = tabla.map((valores, indice) => zipToObj(vars.toArray(), valores))
 
-        const resultados: boolean[] = []
-        for (let i = 0; i < variables_cargadas.length; i++) {
-            const r = evaluar$(variables_cargadas[i], {error: false, resultado: {expresion: tokens, pila: List([])}})
-            if (r.error) {
-                return r
+            const resultados: boolean[] = []
+            for (let i = 0; i < variables_cargadas.length; i++) {
+                const r = evaluar$(variables_cargadas[i], {error: false, resultado: {expresion: tokens, pila: List([])}})
+                if (r.error) {
+                    return r
+                }
+                else {
+                    resultados.push((r.resultado as EstadoEvaluacion).pila.last())
+                }
             }
-            else {
-                resultados.push((r.resultado as EstadoEvaluacion).pila.last())
-            }
+
+            return {error: false, resultado: resultados}   
         }
-
-        return {error: false, resultado: resultados}
+        else {
+            return {error: false, resultado: []}
+        }
     }
     else {
         return exp_maybe
@@ -232,18 +237,23 @@ function rango(longitud: number): number[] {
 }
 
 export function aplastar<A>(nodo: Nodo<A>): A[] {
-    let izquierda: A[] = []
-    let derecha: A[] = []
+    if (nodo != null) {
+        let izquierda: A[] = []
+        let derecha: A[] = []
 
-    if (nodo.izquierda != null) {
-        izquierda = aplastar(nodo.izquierda)
+        if (nodo.izquierda != null) {
+            izquierda = aplastar(nodo.izquierda)
+        }
+
+        if (nodo.derecha != null) {
+            derecha = aplastar(nodo.derecha)
+        }
+
+        return [...izquierda, ...derecha, nodo.contenido]
     }
-
-    if (nodo.derecha != null) {
-        derecha = aplastar(nodo.derecha)
+    else {
+        return []
     }
-
-    return [...izquierda, ...derecha, nodo.contenido]
 }
 
 /**
