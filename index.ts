@@ -1,32 +1,42 @@
+/**
+ * Este archivo presenta la interfaz de la libreria. Las funciones que exporta 'delegan' el trabajo a las
+ * de `lib.ts` y solo sirven para que sea mas facil consumirlas.
+ */
+
 import {List} from 'immutable'
 import {Fallo, Exito, ErrorPosible, ExpresionLeida, EstadoEvaluacion, CaracterInesperado, OperandoFaltante, Nodo, Token, Variables} from './interfaces'
 import {generar_tabla,  arbol, evaluar$, leer$, aplastar, zipToObj} from './lib'
 
 /**
- * evaluar: evalua una expresion y devuelve el resultado o el error encontrado en ella
+ * evaluar: es simplemente una envoltura para evaluar$, que es la funcion que realmente calcula el resultado
  */
-export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<boolean[]> {
+export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<{vars: boolean[][], exp: boolean[]}> {
     if (!exp_maybe.error) {
         const {tokens, vars} = exp_maybe.resultado as ExpresionLeida
-        /**
-         * tabla de valores para las variables
-         */
-        const tabla = generar_tabla(vars.size)
+        if (tokens.size > 0) {
+            /**
+             * tabla de valores para las variables
+             */
+            const tabla = generar_tabla(vars.size)
 
-        const variables_cargadas = tabla.map((valores, indice) => zipToObj(vars.toArray(), valores))
+            const variables_cargadas = tabla.map((valores, indice) => zipToObj(vars.toArray(), valores))
 
-        const resultados: boolean[] = []
-        for (let i = 0; i < variables_cargadas.length; i++) {
-            const r = evaluar$(variables_cargadas[i], {error: false, resultado: {expresion: tokens, pila: List([])}})
-            if (r.error) {
-                return r
+            const resultados: boolean[] = []
+            for (let i = 0; i < variables_cargadas.length; i++) {
+                const r = evaluar$(variables_cargadas[i], {error: false, resultado: {expresion: tokens, pila: List([])}})
+                if (r.error) {
+                    return r
+                }
+                else {
+                    resultados.push((r.resultado as EstadoEvaluacion).pila.last())
+                }
             }
-            else {
-                resultados.push((r.resultado as EstadoEvaluacion).pila.last())
-            }
+
+            return {error: false, resultado: {vars: tabla, exp: resultados}}
         }
-
-        return {error: false, resultado: resultados}
+        else {
+            return {error: false, resultado: {vars: [], exp: []}}
+        }
     }
     else {
         return exp_maybe
@@ -34,7 +44,7 @@ export function evaluar(exp_maybe: Fallo<ErrorPosible> | Exito<ExpresionLeida>):
 }
 
 /**
- * rpn: convierte una expresion en forma de arbol a una expresion rpn
+ * rpn: envoltura para `aplastar`, devuelve el error encontrado o una lista de tokens que se puede evaluar facilmente
  */
 
 export function rpn(expresion_maybe: Fallo<CaracterInesperado> | Exito<ExpresionLeida>): Fallo<ErrorPosible> | Exito<ExpresionLeida> {
@@ -55,7 +65,7 @@ export function rpn(expresion_maybe: Fallo<CaracterInesperado> | Exito<Expresion
 
 
 /**
- * leer: convierte una cadena a una lista de tokens expresion
+ * leer: envoltura para leer$...solo sirve para la primer invocacion
  */
 export function leer(expresion: string): Fallo<CaracterInesperado> | Exito<ExpresionLeida> {
     return leer$(expresion, {error: false, resultado: {pos: 0, tokens: List([]), vars: List([])}})
