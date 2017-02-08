@@ -1,0 +1,92 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgb(0, 188, 212);
+}
+
+#app {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    margin-top: 5px;
+}
+
+table {
+    margin-top: 15px;
+    text-align: center;
+    background-color: white;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.2);    
+    border-collapse: separate;
+    font-family: 'Montserrat', sans-serif;
+    font-size: xx-large;
+}
+
+tbody {
+    overflow-y: auto;
+}
+
+thead tr th {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+}
+
+td, th {
+    padding: 4px 20px 0px 20px;
+    font-weight: lighter;
+}
+
+td {
+    font-size: large;
+}
+
+.flex {
+    display: flex;
+}
+
+.column {
+    flex-flow: column nowrap;
+}
+
+.fullw {
+    width: 100%;
+}
+
+.align-center {
+    align-items: center;
+}
+
+#in {
+    width: 601px;
+    padding: 4px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.2);
+    margin-bottom: 8px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    padding: 10px 0px 10px 0px;
+}
+
+.label {
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+#options {
+    border-bottom: 3px solid rgba(0,0,0,0.2);
+    margin-top: 6px;
+    width: 100%;
+}
+
+.logo {
+    font-family: 'PT Mono', monospace;
+    font-size: 90px;
+    margin-bottom: 10px;
+    text-shadow: 0px 4px 3px rgba(0, 0, 0, 0.3);
+    color: white;
+}
